@@ -5,6 +5,7 @@ project(obstacle_detection)
 find_package(catkin REQUIRED
 sensor_msgs
 roscpp
+
 )
 
 
