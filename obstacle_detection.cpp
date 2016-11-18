@@ -1,47 +1,44 @@
+
+/*Detects obstacles, which are on the road.  Evaluates the Distance of the Points published by the Laser and publishes points with a certain distance difference as obstacles. */
+
 #include <ros/ros.h>
 #include <math.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <iostream>
 
 
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/conversions.h>
+#include <pcl_ros/transforms.h>
+
 ros::Publisher obstacle_pub;
 
 
 
-
-void scan(const sensor_msgs::PointCloud2ConstPtr &PCL2) {
-  //float x=PCL2->data[100];
-  //float y=PCL2->data[2];
-  //float z=PCL2->data[3];
-  std::cout<<PCL2->row_step<<std::endl;
+void scan(const sensor_msgs::PointCloud2& PCL2) {
   
-  
-  
-
-  
-  /*
-  
-  
-  
-  float d1=sqrt(y*y+x*x+z*z);
-  float d2=sqrt(y*y+x*x);
+  pcl::PCLPointCloud2 pcl_pc2;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud;
+  pcl_conversions::toPCL(PCL2, pcl_pc2);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::fromPCLPointCloud2(pcl_pc2,*temp_cloud);
   
 
-
- 
+  for(int i=0;i <= temp_cloud->size(); i++) {
+    if (temp_cloud->points[i].x>0 && i<temp_cloud->size()) {
+      filtered_cloud->points[i]=temp_cloud->points[i];
+    }  
+  }
   
-  float alpha=atan(z/d2);
-  float beta=atan(y/d2);
+  sensor_msgs::PointCloud2* converted;
   
-  if(-16<alpha<-14 && 0<beta<10 ) {
-    obstacle_pub.publish(PCL2);  }
+  //pcl::toROSMsg( &filtered_cloud, &converted )   
   
-  else if(-10<beta<10) {}
+    
   
-  */
 }
-
-
 
 
 int main(int argc, char **argv)
@@ -49,6 +46,9 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "obstacle_detection");
   ros::NodeHandle n;
 
+
+  
+  
   
   obstacle_pub = n.advertise<sensor_msgs::PointCloud2>("/obstacles", 1000);
   ros::Subscriber sub = n.subscribe("/velodyne_points", 1000, scan);
@@ -60,9 +60,6 @@ int main(int argc, char **argv)
   ros::spin();
   return 0;
 }
-
-//sensor_msgs::PointCloud2 p;
-//p.data[1]=PCL2->data[1];
 
 
 

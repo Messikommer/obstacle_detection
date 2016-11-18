@@ -2,16 +2,24 @@ cmake_minimum_required(VERSION 2.8.3)
 project(obstacle_detection)
 
 
-find_package(catkin REQUIRED
-sensor_msgs
-roscpp
-
+find_package(catkin REQUIRED COMPONENTS
+	sensor_msgs
+	roscpp
+ 	pcl_conversions
+  	pcl_ros
 )
 
 
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+include_directories(  ${catkin_INCLUDE_DIRS}  ${PCL_INCLUDE_DIRS} )
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 add_executable(obstacle_detection ${PROJECT_SOURCE_DIR}/obstacle_detection.cpp)
-target_link_libraries(obstacle_detection ${catkin_LIBRARIES})
+
+target_link_libraries(obstacle_detection 
+  ${catkin_LIBRARIES}
+  ${roslib_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
 
